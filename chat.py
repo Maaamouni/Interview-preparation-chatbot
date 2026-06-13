@@ -53,7 +53,20 @@ Answer:
 # -----------------------
 def get_context(question):
     docs = retriever.invoke(question)
-    return "\n\n".join([doc.page_content for doc in docs])
+
+    context = ""
+    sources = []
+
+    for doc in docs:
+        context += doc.page_content + "\n\n"
+
+        sources.append({
+            "source": doc.metadata.get("source", "unknown"),
+            "page": doc.metadata.get("page", "unknown"),
+            "content_preview": doc.page_content[:80]
+        })
+
+    return context, sources
 
 def chat():
     print("💬 RAG Chatbot ready! Type 'exit' to quit.\n")
@@ -64,7 +77,7 @@ def chat():
         if question.lower() == "exit":
             break
 
-        context = get_context(question)
+        context, sources = get_context(question)
 
         final_prompt = prompt.invoke({
             "context": context,
@@ -74,6 +87,10 @@ def chat():
         response = llm.invoke(final_prompt)
 
         print("\nBot:", response.content, "\n")
+
+        print("\n Sources:")
+        for s in sources:
+            print(f" - {s['source']} (Page {s['page']}): {s['content_preview']}...")
 
 
 if __name__ == "__main__":

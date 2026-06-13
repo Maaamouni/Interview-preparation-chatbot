@@ -33,3 +33,5 @@ embed(chunk)
 ### Prompt Engineering
 
 ### Generation
+
+# Version 2 : Traceable RAG

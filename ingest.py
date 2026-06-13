@@ -23,8 +23,16 @@ def load_documents(data_path):
 
     for file in Path(data_path).rglob("*.pdf"):
         print(f"[INFO] Loading: {file}")
+
         loader = PyPDFLoader(str(file))
-        documents.extend(loader.load())
+        docs = loader.load()  # each page becomes a Document
+
+        # ADD CLEAN SOURCE METADATA
+        for doc in docs:
+            doc.metadata["source"] = file.name   # file name
+            doc.metadata["page"] = doc.metadata.get("page", None)  # page number
+
+        documents.extend(docs)
 
     return documents
 
